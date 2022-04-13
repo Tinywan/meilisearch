@@ -12,6 +12,7 @@ namespace Tinywan\Facade;
 /**
  * @see \Tinywan\MeiliSearch
  * @mixin \Tinywan\MeiliSearch
+ * @package \Tinywan\MeiliSearch
  * @method static index(string $name) 创建索引
  * @method static addDocuments(array $documents) 添加索引文档
  * @method static search(string $keywords) 查询关键词
