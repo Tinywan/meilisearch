@@ -13,9 +13,14 @@ namespace Tinywan\Facade;
  * @see \Tinywan\MeiliSearch
  * @mixin \Tinywan\MeiliSearch
  * @package \Tinywan\MeiliSearch
- * @method static index(string $name) 创建索引
- * @method static addDocuments(array $documents) 添加索引文档
- * @method static search(string $keywords) 查询关键词
+ * @method static \Tinywan\MeiliSearch index(string $name) 创建索引
+ * @method static \Tinywan\MeiliSearch addDocuments(array $documents) 添加索引文档
+ * @method static \Tinywan\MeiliSearch search(string $keywords) 查询关键词
+ * @method static \Tinywan\MeiliSearch query(string $keywords) 查询关键词
+ * @method static \Tinywan\MeiliSearch field(array $field) 指定检索的字段查询
+ * @method static \Tinywan\MeiliSearch order(string $keywords) 排序
+ * @method static \Tinywan\MeiliSearch limit(int $limit) 指定条数查询
+ * @method static select() 查询
  */
 class MeiliSearch
 {

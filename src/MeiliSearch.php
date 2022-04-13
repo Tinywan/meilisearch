@@ -28,7 +28,7 @@ class MeiliSearch
      * 指定查询数量
      * @var int
      */
-    private $limit;
+    private $limit = 20;
 
     /**
      * @var array
@@ -44,17 +44,17 @@ class MeiliSearch
      * 指定查询字段
      * @var array
      */
-    private $field;
+    private $field = [];
 
     /**
      * @var
      */
-    private $query;
+    private $query = '';
 
     /**
      * @var array
      */
-    private $sorts;
+    private $sorts = [];
 
     /**
      * MeiliSearch constructor.
@@ -179,7 +179,6 @@ class MeiliSearch
     public function select(): array
     {
         $filters = [
-//            'filter' => $this->filters(),
             'limit' => $this->limit
         ];
         if(!empty($this->sorts)){
@@ -194,6 +193,33 @@ class MeiliSearch
         if(!empty($this->facetsDistribution)){
             $filters['facetsDistribution'] = $this->facetsDistribution;
         }
+        return $this->rawSearch(array_filter($filters));
+    }
+
+    /**
+     * @desc: paginate 描述
+     * @param int $page
+     * @return array
+     */
+    public function paginate(int $page = 1)
+    {
+        $filters = [
+            'limit' => $this->limit,
+            'offset' => ($page - 1) * $this->limit,
+        ];
+        if(!empty($this->sorts)){
+            $filters['sort'] = $this->sorts;
+        }
+        if(!empty($this->attributesToHighlight)){
+            $filters['attributesToHighlight'] = $this->attributesToHighlight;
+        }
+        if(!empty($this->field)){
+            $filters['attributesToRetrieve'] = $this->field;
+        }
+        if(!empty($this->facetsDistribution)){
+            $filters['facetsDistribution'] = $this->facetsDistribution;
+        }
+        var_dump($filters);
         return $this->rawSearch(array_filter($filters));
     }
 

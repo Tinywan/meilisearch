@@ -20,6 +20,8 @@ composer require tinywan/meilisearch
 
 ## 使用
 
+### 基本使用
+
 #### 1. 创建索引
 
 ```php
@@ -38,7 +40,7 @@ $documents = [
 Tinywan\MeiliSearch::index('webman_2022')->addDocuments($documents);
 ```
 
-#### 3. 默认查询（默认20条）
+#### 3. 默认查询
 
 ```php
 Tinywan\MeiliSearch::index('webman_2022')->search('桌面摆件')->getRaw();
@@ -46,30 +48,70 @@ Tinywan\MeiliSearch::index('webman_2022')->search('桌面摆件')->getRaw();
 
 - `getRaw()` 返回数组
 
-#### 4. 指定关键词查询（默认20条）
+#### 4. 关键词查询
 
 ```php
 Tinywan\MeiliSearch::index('webman_2022')->query('桌面摆件')->select();
 ```
 
-#### 5. 指定关键词查询（默认20条）
-
-```php
-Tinywan\MeiliSearch::index('webman_2022')->query('桌面摆件')->select();
-```
-
-#### 6. 查询条数
+#### 5. 指定条数查询
 
 ```php
 Tinywan\MeiliSearch::index('webman_2022')->query('桌面摆件')->limit(3)->select();
 ```
 
-#### 7. 查询指定字段值
+#### 6. 指定检索的字段查询
 
 ```php
 Tinywan\MeiliSearch::index('webman_2022')->query('桌面摆件')->field(['title'])->select();
 ```
 
+## 返回字段
+
+- `hits` 命中的结果
+- `offset` 页大小
+- `limit` 每页条数
+- `processingTimeMs` 处理耗时
+- `query` 查询的内容
+
 ## 前端集成
 
 ![demo.png](./demo.png);
+
+## 数据查询
+
+分页查询
+```
+http://172.30.32.1:7700/indexes/mall_goods/search?limit=1&offset=3
+http://172.30.32.1:7700/indexes/mall_goods_27_30/search?q=10
+```
+- `offset` 页大小
+- `limit` 每页条数
+
+关键字查询
+```
+http://172.30.32.1:7700/indexes/mall_goods_27_30/search?q=桌面摆件
+```
+
+## 数据添加
+
+### 已经存在的数据
+
+1. 直接批量添加即可
+```php
+$documents = Db::table('mall_goods')
+    ->field('id,name,default_image')
+    ->whereIn('goods_id',[30])
+    ->limit(2)
+    ->select()
+    ->toArray();
+Tinywan\MeiliSearch::index('article')->addDocuments($documents);
+```
+
+2. 新添加的商品，单独添加
+```php
+$documents = [
+    ['id' => 1, 'title' => '酒吧墙面装饰美式复古咖啡厅'],
+];
+Tinywan\MeiliSearch::index('article')->addDocuments($documents);
+```
