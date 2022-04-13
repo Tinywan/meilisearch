@@ -1,4 +1,8 @@
-# webman meilisearch plugin
+<p align="center">
+  <img src="./logo.svg" alt="Meilisearch" width="200" height="200" />
+</p>
+
+<h1 align="center">Meilisearch</h1>
 
 [![Latest Stable Version](http://poser.pugx.org/tinywan/meilisearch/v)](https://packagist.org/packages/tinywan/meilisearch) 
 [![Total Downloads](http://poser.pugx.org/tinywan/meilisearch/downloads)](https://packagist.org/packages/tinywan/meilisearch) 
