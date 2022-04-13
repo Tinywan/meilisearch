@@ -37,4 +37,29 @@ $documents = [
 ```php
 \Tinywan\MeiliSearch::index('webman_2022')->search('桌面摆件')->getRaw();
 ```
+
 - `getRaw()` 返回数组
+
+#### 4. 指定关键词查询（默认20条）
+
+```php
+\Tinywan\MeiliSearch::index('webman_2022')->query('桌面摆件')->select();
+```
+
+#### 5. 指定关键词查询（默认20条）
+
+```php
+\Tinywan\MeiliSearch::index('webman_2022')->query('桌面摆件')->select();
+```
+
+#### 6. 查询条数
+
+```php
+\Tinywan\MeiliSearch::index('webman_2022')->query('桌面摆件')->limit(3)->select();
+```
+
+#### 7. 查询指定字段值
+
+```php
+\Tinywan\MeiliSearch::index('webman_2022')->query('桌面摆件')->field(['title'])->select();
+```

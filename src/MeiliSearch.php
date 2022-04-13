@@ -6,9 +6,7 @@
  */
 declare(strict_types=1);
 
-
 namespace Tinywan;
-
 
 use GuzzleHttp\Client as GuzzleHttpClient;
 use MeiliSearch\Client;
@@ -24,7 +22,7 @@ class MeiliSearch
     /**
      * @var string
      */
-    protected $index;
+    protected  $index;
 
     /**
      * 指定查询数量
@@ -32,6 +30,9 @@ class MeiliSearch
      */
     private $limit;
 
+    /**
+     * @var array
+     */
     private $attributesToHighlight;
 
     /**
@@ -45,8 +46,14 @@ class MeiliSearch
      */
     private $field;
 
+    /**
+     * @var
+     */
     private $query;
 
+    /**
+     * @var array
+     */
     private $sorts;
 
     /**
@@ -87,6 +94,18 @@ class MeiliSearch
     }
 
     /**
+     * search documents
+     * @param string|null $query
+     * @param array $searchParams
+     * @param array $options
+     * @return SearchResult|array
+     */
+    public function search(?string $query, array $searchParams = [], array $options = [])
+    {
+        return $this->client->index($this->index)->search($query, $searchParams, $options);
+    }
+
+    /**
      * 设置查询显示的属性
      * @param array $field
      * @return MeiliSearch
@@ -110,31 +129,6 @@ class MeiliSearch
     }
 
     /**
-     * @desc: get 描述
-     * @return array
-     */
-    public function get(): array
-    {
-        $filters = [
-            'filter' => $this->filters(),
-            'limit' => $this->limit
-        ];
-        if(!empty($this->sorts)){
-            $filters['sort'] = $this->sorts;
-        }
-        if(!empty($this->attributesToHighlight)){
-            $filters['attributesToHighlight'] = $this->attributesToHighlight;
-        }
-        if(!empty($this->field)){
-            $filters['attributesToRetrieve'] = $this->field;
-        }
-        if(!empty($this->facetsDistribution)){
-            $filters['facetsDistribution'] = $this->facetsDistribution;
-        }
-        return $this->rawSearch(array_filter($filters));
-    }
-
-    /**
      * 查询关键词
      * @param string $keywords
      * @return MeiliSearch
@@ -143,29 +137,6 @@ class MeiliSearch
     {
         $this->query = $keywords;
         return $this;
-    }
-
-    /**
-     * Perform the given search on the engine.
-     * @param array $searchParams
-     * @return array
-     */
-    protected function rawSearch(array $searchParams = []): array
-    {
-        $meilisearch = $this->client->index($this->index);
-        return $meilisearch->rawSearch($this->query, $searchParams);
-    }
-
-    /**
-     * search documents
-     * @param string|null $query
-     * @param array $searchParams
-     * @param array $options
-     * @return SearchResult|array
-     */
-    public function search(?string $query, array $searchParams = [], array $options = [])
-    {
-        return $this->client->index($this->index)->search($query, $searchParams, $options);
     }
 
     /**
@@ -199,6 +170,42 @@ class MeiliSearch
     {
         $this->facetsDistribution = $attributes;
         return $this;
+    }
+
+    /**
+     * @desc: select
+     * @return array
+     */
+    public function select(): array
+    {
+        $filters = [
+//            'filter' => $this->filters(),
+            'limit' => $this->limit
+        ];
+        if(!empty($this->sorts)){
+            $filters['sort'] = $this->sorts;
+        }
+        if(!empty($this->attributesToHighlight)){
+            $filters['attributesToHighlight'] = $this->attributesToHighlight;
+        }
+        if(!empty($this->field)){
+            $filters['attributesToRetrieve'] = $this->field;
+        }
+        if(!empty($this->facetsDistribution)){
+            $filters['facetsDistribution'] = $this->facetsDistribution;
+        }
+        return $this->rawSearch(array_filter($filters));
+    }
+
+    /**
+     * Perform the given search on the engine.
+     * @param array $searchParams
+     * @return array
+     */
+    protected function rawSearch(array $searchParams = []): array
+    {
+        $meilisearch = $this->client->index($this->index);
+        return $meilisearch->rawSearch($this->query, $searchParams);
     }
 
     /**
