@@ -63,3 +63,7 @@ $documents = [
 ```php
 \Tinywan\MeiliSearch::index('webman_2022')->query('桌面摆件')->field(['title'])->select();
 ```
+
+## 前端集成
+
+![demo.png](./demo.png);
