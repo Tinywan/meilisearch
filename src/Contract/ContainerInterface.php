@@ -13,8 +13,7 @@ interface ContainerInterface extends \Psr\Container\ContainerInterface
 {
     /**
      * @desc factory make 。如果使用PHP-DI，则继承自 interface DI\FactoryInterface.
-     * @param string $name
-     * @param array $parameters
+     *
      * @return mixed
      */
     public function make(string $name, array $parameters = []);

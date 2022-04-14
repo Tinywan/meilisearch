@@ -48,7 +48,7 @@ class MeiliSearch
     private static $container = null;
 
     /**
-     * Meili constructor.
+     * MeiliSearch constructor.
      *
      * @param Closure|ContainerInterface|null $container
      */
@@ -58,7 +58,7 @@ class MeiliSearch
     }
 
     /**
-     * @desc: __callStatic 描述
+     * @desc: 用静态方式中调用一个不可访问方法时调用
      *
      * @return mixed
      *
@@ -67,7 +67,6 @@ class MeiliSearch
      */
     public static function __callStatic(string $service, array $config)
     {
-        // 使用自己的的扩展配置文件
         if (!empty($config)) {
             self::config(...$config);
         }
@@ -87,15 +86,15 @@ class MeiliSearch
         if (self::hasContainer() && !($config['_force'] ?? false)) {
             return false;
         }
+
         new self($config, $container);
 
         return true;
     }
 
     /**
-     * @desc: set 描述
+     * @desc: 设置切换到另一个容器
      *
-     * @param string $name
      * @param $value
      *
      * @throws ContainerException
@@ -158,8 +157,6 @@ class MeiliSearch
      * @desc: 如果容器内有标识符对应的内容时，返回 true，否则，返回 false。
      *
      * @throws ContainerNotFoundException
-     *
-     * @author Tinywan(ShaoBo Wan)
      */
     public static function has(string $service): bool
     {
@@ -167,6 +164,8 @@ class MeiliSearch
     }
 
     /**
+     * @desc 设置容器
+     *
      * @param Closure|ContainerInterface|null $container
      */
     public static function setContainer($container): void
@@ -209,7 +208,20 @@ class MeiliSearch
     }
 
     /**
-     * 这里注册一些相关的服务：Event Log Http.
+     * @desc 调用接口注册服务
+     *
+     * @param $data
+     */
+    public static function registerService(string $service, $data): void
+    {
+        $var = new $service();
+        if ($var instanceof ServiceProviderInterface) {
+            $var->register($data);
+        }
+    }
+
+    /**
+     * @desc 这里注册一些相关的服务：Event Log Http.
      *
      * @param Closure|ContainerInterface|null $container
      */
@@ -217,19 +229,6 @@ class MeiliSearch
     {
         foreach (array_merge($this->coreService, $this->service) as $service) {
             self::registerService($service, ContainerServiceProvider::class == $service ? $container : $config);
-        }
-    }
-
-    /**
-     * 调用接口注册服务
-     *
-     * @param mixed $data
-     */
-    public static function registerService(string $service, $data): void
-    {
-        $var = new $service();
-        if ($var instanceof ServiceProviderInterface) {
-            $var->register($data);
         }
     }
 }
