@@ -1,247 +1,220 @@
 <?php
 /**
- * @desc MeiliSearch.php 描述信息
+ * @desc MeiliSearch
  * @author Tinywan(ShaoBo Wan)
- * @date 2022/4/13 9:38
+ * @date 2022/4/14 14:36
  */
 declare(strict_types=1);
 
+
 namespace Tinywan;
 
-use GuzzleHttp\Client as GuzzleHttpClient;
-use MeiliSearch\Client;
-use MeiliSearch\Search\SearchResult;
+use Closure;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use Tinywan\Contract\ServiceProviderInterface;
+use Tinywan\Exception\ContainerException;
+use Tinywan\Exception\ContainerNotFoundException;
+use Tinywan\Service\ContainerServiceProvider;
+use Tinywan\Service\SearchServiceProvider;
 
 class MeiliSearch
 {
     /**
-     * @var Client
+     * @var string[]
      */
-    protected $client;
+    protected array $service = [
+        SearchServiceProvider::class
+    ];
 
     /**
-     * @var string
+     * @var string[]
      */
-    protected  $index;
+    private array $coreService = [
+        ContainerServiceProvider::class
+    ];
 
     /**
-     * 指定查询数量
-     * @var int
+     * @var Closure|ContainerInterface|null
      */
-    private $limit = 20;
+    private static $container = null;
 
     /**
-     * @var array
+     * Meili constructor.
+     * @param array $config
+     * @param Closure|ContainerInterface|null $container
      */
-    private $attributesToHighlight;
-
-    /**
-     * @var array|string[]
-     */
-    private $facetsDistribution;
-
-    /**
-     * 指定查询字段
-     * @var array
-     */
-    private $field = [];
-
-    /**
-     * @var
-     */
-    private $query = '';
-
-    /**
-     * @var array
-     */
-    private $sorts = [];
-
-    /**
-     * MeiliSearch constructor.
-     */
-    public function __construct()
+    public function __construct(array $config, $container = null)
     {
-        $config= \config('plugin.tinywan.meilisearch.app.meilisearch', [
-            'url' => 'http://127.0.0.1:7700',
-            'key' => ''
-        ]);
-        $this->client = new Client($config['url'], $config['key'], new GuzzleHttpClient($config['guzzle']));
+        $this->registerServices($config, $container);
     }
 
     /**
-     * @desc: create index
-     * @param string $name
-     * @return $this
+     * 这里注册一些相关的服务：Event Log Http
+     * @param Closure|ContainerInterface|null $container
      */
-    public function index(string $name): MeiliSearch
+    private function registerServices(array $config, $container = null): void
     {
-        $this->index = $name;
-        return $this;
-    }
-
-    /**
-     * create documents
-     * @param array $documents
-     * @return MeiliSearch
-     */
-    public function addDocuments(array $documents): MeiliSearch
-    {
-        $index = $this->client->index($this->index);
-        if (!empty($documents)) {
-            $index->addDocuments($documents);
+        foreach (array_merge($this->coreService, $this->service) as $service) {
+            self::registerService($service, ContainerServiceProvider::class == $service ? $container : $config);
         }
-        return $this;
     }
 
     /**
-     * search documents
-     * @param string|null $query
-     * @param array $searchParams
-     * @param array $options
-     * @return SearchResult|array
+     * 调用接口注册服务
+     * @param mixed $data
      */
-    public function search(?string $query, array $searchParams = [], array $options = [])
+    public static function registerService(string $service, $data): void
     {
-        return $this->client->index($this->index)->search($query, $searchParams, $options);
-    }
-
-    /**
-     * 设置查询显示的属性
-     * @param array $field
-     * @return MeiliSearch
-     */
-    public function field(array $field = []): MeiliSearch
-    {
-        $this->field = $field;
-        return $this;
-    }
-
-    /**
-     * 设置排序
-     * @param $column
-     * @param string $rank
-     * @return $this
-     */
-    public function order($column, string $rank = 'asc'): MeiliSearch
-    {
-        $this->sorts[] = sprintf("%s:%s", $column, $rank);
-        return $this;
-    }
-
-    /**
-     * 查询关键词
-     * @param string $keywords
-     * @return MeiliSearch
-     */
-    public function query(string $keywords): MeiliSearch
-    {
-        $this->query = $keywords;
-        return $this;
-    }
-
-    /**
-     * @desc: 设置查询数量
-     * @param int $limit
-     * @return $this
-     */
-    public function limit(int $limit): MeiliSearch
-    {
-        $this->limit = $limit;
-        return $this;
-    }
-
-    /**
-     * @desc: 高亮查询
-     * @param array $attributes
-     * @return $this
-     */
-    public function highlight(array $attributes = []): MeiliSearch
-    {
-        $this->attributesToHighlight = $attributes;
-        return $this;
-    }
-
-    /**
-     * @desc: facets 描述
-     * @param array|string[] $attributes
-     * @return $this
-     */
-    public function facets(array $attributes = ['*']): MeiliSearch
-    {
-        $this->facetsDistribution = $attributes;
-        return $this;
-    }
-
-    /**
-     * @desc: select
-     * @return array
-     */
-    public function select(): array
-    {
-        $filters = [
-            'limit' => $this->limit
-        ];
-        if(!empty($this->sorts)){
-            $filters['sort'] = $this->sorts;
+        $var = new $service();
+        if ($var instanceof ServiceProviderInterface) {
+            $var->register($data);
         }
-        if(!empty($this->attributesToHighlight)){
-            $filters['attributesToHighlight'] = $this->attributesToHighlight;
-        }
-        if(!empty($this->field)){
-            $filters['attributesToRetrieve'] = $this->field;
-        }
-        if(!empty($this->facetsDistribution)){
-            $filters['facetsDistribution'] = $this->facetsDistribution;
-        }
-        return $this->rawSearch(array_filter($filters));
     }
 
     /**
-     * @desc: paginate 描述
-     * @param int $page
-     * @return array
-     */
-    public function paginate(int $page = 1)
-    {
-        $filters = [
-            'limit' => $this->limit,
-            'offset' => ($page - 1) * $this->limit,
-        ];
-        if(!empty($this->sorts)){
-            $filters['sort'] = $this->sorts;
-        }
-        if(!empty($this->attributesToHighlight)){
-            $filters['attributesToHighlight'] = $this->attributesToHighlight;
-        }
-        if(!empty($this->field)){
-            $filters['attributesToRetrieve'] = $this->field;
-        }
-        if(!empty($this->facetsDistribution)){
-            $filters['facetsDistribution'] = $this->facetsDistribution;
-        }
-        var_dump($filters);
-        return $this->rawSearch(array_filter($filters));
-    }
-
-    /**
-     * Perform the given search on the engine.
-     * @param array $searchParams
-     * @return array
-     */
-    protected function rawSearch(array $searchParams = []): array
-    {
-        $meilisearch = $this->client->index($this->index);
-        return $meilisearch->rawSearch($this->query, $searchParams);
-    }
-
-    /**
-     * @desc: __call 描述
-     * @param $method
-     * @param $parameters
+     * @desc: __callStatic 描述
+     * @param string $service
+     * @param array $config
      * @return mixed
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
-    public function __call($method, $parameters)
+    public static function __callStatic(string $service, array $config)
     {
-        return $this->client->$method(...$parameters);
+        // 使用自己的的扩展配置文件
+        if (!empty($config)) {
+            self::config(...$config);
+        }
+        return self::get($service);
     }
+
+    /**
+     * @desc: 初始化配置
+     * @param array $config
+     * @param Closure|ContainerInterface|null $container
+     * @return bool
+     * @author Tinywan(ShaoBo Wan)
+     */
+    public static function config(array $config = [], $container = null): bool
+    {
+        if (self::hasContainer() && !($config['_force'] ?? false)) {
+            return false;
+        }
+        new self($config, $container);
+        return true;
+    }
+
+    /**
+     * @desc: set 描述
+     * @param string $name
+     * @param $value
+     * @throws ContainerException
+     * @author Tinywan(ShaoBo Wan)
+     */
+    public static function set(string $name, $value): void
+    {
+        try {
+            $container = MeiliSearch::getContainer();
+            if (method_exists($container, 'set')) {
+                $container->set(...func_get_args());
+                return;
+            }
+        } catch (ContainerNotFoundException | \Throwable $e) {
+            throw new ContainerException($e->getMessage());
+        }
+        throw new ContainerException('Current container does NOT support `set` method');
+    }
+
+    /**
+     * @desc: make 描述
+     * @param string $service
+     * @param array $parameters
+     * @return mixed
+     * @throws \Exception
+     */
+    public static function make(string $service, array $parameters = [])
+    {
+        try {
+            $container = MeiliSearch::getContainer();
+            if (method_exists($container, 'make')) {
+                return $container->make(...func_get_args());
+            }
+        }catch (ContainerNotFoundException| \Throwable $e) {
+            throw new ContainerException($e->getMessage());
+        }
+        $parameters = array_values($parameters);
+        return new $service(...$parameters);
+    }
+
+    /**
+     * @desc 在容器中查找并返回实体标识符对应的对象
+     * @param string $service 查找的实体标识符字符串
+     * @return mixed
+     * @throws NotFoundExceptionInterface  容器中没有实体标识符对应对象时抛出的异常。
+     * @throws ContainerExceptionInterface 查找对象过程中发生了其他错误时抛出的异常。
+     */
+    public static function get(string $service)
+    {
+        // 注册的服务
+        $container = MeiliSearch::getContainer();
+        return $container->get($service);
+    }
+
+    /**
+     * @desc: 如果容器内有标识符对应的内容时，返回 true，否则，返回 false。
+     * @param string $service
+     * @return bool
+     * @throws ContainerNotFoundException
+     * @author Tinywan(ShaoBo Wan)
+     */
+    public static function has(string $service): bool
+    {
+        return MeiliSearch::getContainer()->has($service);
+    }
+
+    /**
+     * @param Closure|ContainerInterface|null $container
+     */
+    public static function setContainer($container): void
+    {
+        self::$container = $container;
+    }
+
+    /**
+     * @desc: getContainer 描述
+     * @return ContainerInterface
+     * @throws ContainerNotFoundException
+     */
+    public static function getContainer(): ContainerInterface
+    {
+        if (self::$container instanceof ContainerInterface) {
+            return self::$container;
+        }
+
+        if (self::$container instanceof Closure) {
+            return (self::$container)();
+        }
+
+        throw new ContainerNotFoundException('`getContainer()` failed! Maybe you should `setContainer()` first');
+    }
+
+    /**
+     * @desc: hasContainer 描述
+     * @return bool
+     */
+    public static function hasContainer(): bool
+    {
+        return self::$container instanceof ContainerInterface || self::$container instanceof Closure;
+    }
+
+    /**
+     * @desc: clear 描述
+     */
+    public static function clear(): void
+    {
+        self::$container = null;
+    }
+
 }

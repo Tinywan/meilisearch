@@ -20,12 +20,28 @@ composer require tinywan/meilisearch
 
 ## 使用
 
+### 初始化配置
+
+```php
+$config = [
+    'url' => 'https://meilisearch.busionline.com/',
+    'key' => '',
+    'guzzle' => [
+        'headers' => [
+            'charset' => 'UTF-8',
+        ],
+        'timeout' => 20
+    ],
+];
+Tinywan\Meilisearch::config($config);
+```
+
 ### 基本使用
 
 #### 1. 创建索引
 
 ```php
-Tinywan\MeiliSearch::index('webman_2022');
+Tinywan\Facade\MeiliSearch::index('webman_2022');
 ```
 
 #### 2. 添加文档
@@ -37,13 +53,13 @@ $documents = [
     ['id' => 3, 'title' => '现代简约三联餐厅壁画玄关挂画'],
     ['id' => 4, 'title' => '现代简约时尚单头餐吊灯创意个性吧台']
 ];
-Tinywan\MeiliSearch::index('webman_2022')->addDocuments($documents);
+Tinywan\Facade\MeiliSearch::index('webman_2022')->addDocuments($documents);
 ```
 
 #### 3. 默认查询
 
 ```php
-Tinywan\MeiliSearch::index('webman_2022')->search('桌面摆件')->getRaw();
+Tinywan\Facade\MeiliSearch::index('webman_2022')->search('桌面摆件')->getRaw();
 ```
 
 - `getRaw()` 返回数组
@@ -51,19 +67,19 @@ Tinywan\MeiliSearch::index('webman_2022')->search('桌面摆件')->getRaw();
 #### 4. 关键词查询
 
 ```php
-Tinywan\MeiliSearch::index('webman_2022')->query('桌面摆件')->select();
+Tinywan\Facade\MeiliSearch::index('webman_2022')->query('桌面摆件')->select();
 ```
 
 #### 5. 指定条数查询
 
 ```php
-Tinywan\MeiliSearch::index('webman_2022')->query('桌面摆件')->limit(3)->select();
+Tinywan\Facade\MeiliSearch::index('webman_2022')->query('桌面摆件')->limit(3)->select();
 ```
 
 #### 6. 指定检索的字段查询
 
 ```php
-Tinywan\MeiliSearch::index('webman_2022')->query('桌面摆件')->field(['title'])->select();
+Tinywan\Facade\MeiliSearch::index('webman_2022')->query('桌面摆件')->field(['title'])->select();
 ```
 
 ## 返回字段
@@ -98,6 +114,7 @@ http://172.30.32.1:7700/indexes/mall_goods_27_30/search?q=桌面摆件
 ### 已经存在的数据
 
 1. 直接批量添加即可
+
 ```php
 $documents = Db::table('mall_goods')
     ->field('id,name,default_image')
@@ -105,13 +122,14 @@ $documents = Db::table('mall_goods')
     ->limit(2)
     ->select()
     ->toArray();
-Tinywan\MeiliSearch::index('article')->addDocuments($documents);
+Tinywan\MeiliSearch1::index('article')->addDocuments($documents);
 ```
 
 2. 新添加的商品，单独添加
+
 ```php
 $documents = [
     ['id' => 1, 'title' => '酒吧墙面装饰美式复古咖啡厅'],
 ];
-Tinywan\MeiliSearch::index('article')->addDocuments($documents);
+Tinywan\MeiliSearch1::index('article')->addDocuments($documents);
 ```
