@@ -33,6 +33,8 @@ $config = [
         'timeout' => 20
     ],
 ];
+
+// 调用 config 方法初始化
 Tinywan\Meilisearch::config($config);
 ```
 

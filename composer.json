@@ -1,7 +1,7 @@
 {
   "name": "tinywan/meilisearch",
-  "description": "the php wrapper meilisearch api for webman plugin",
-  "keywords": ["wrapper", "meilisearch",  "webman", "plugin"],
+  "description": "a simple PHP library for the Meilisearch API",
+  "keywords": ["wrapper", "meilisearch", "library"],
   "type": "library",
   "license": "MIT",
   "authors": [
