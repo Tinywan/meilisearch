@@ -24,7 +24,7 @@ composer require tinywan/meilisearch
 
 ```php
 $config = [
-    'url' => 'https://meilisearch.busionline.com/',
+    'url' => 'http://127.0.0.1:7700',
     'key' => '',
     'guzzle' => [
         'headers' => [
@@ -41,7 +41,7 @@ Tinywan\Meilisearch::config($config);
 #### 1. 创建索引
 
 ```php
-Tinywan\Facade\MeiliSearch::index('webman_2022');
+Tinywan\Meilisearch::search()->index('meilisearch');
 ```
 
 #### 2. 添加文档
@@ -53,34 +53,16 @@ $documents = [
     ['id' => 3, 'title' => '现代简约三联餐厅壁画玄关挂画'],
     ['id' => 4, 'title' => '现代简约时尚单头餐吊灯创意个性吧台']
 ];
-Tinywan\Facade\MeiliSearch::index('webman_2022')->addDocuments($documents);
+Tinywan\Meilisearch::search()->index('meilisearch')->addDocuments($documents);
 ```
 
 #### 3. 默认查询
 
 ```php
-Tinywan\Facade\MeiliSearch::index('webman_2022')->search('桌面摆件')->getRaw();
+Tinywan\Meilisearch::search()->index('meilisearch')->search('桌面摆件')->getRaw();
 ```
 
 - `getRaw()` 返回数组
-
-#### 4. 关键词查询
-
-```php
-Tinywan\Facade\MeiliSearch::index('webman_2022')->query('桌面摆件')->select();
-```
-
-#### 5. 指定条数查询
-
-```php
-Tinywan\Facade\MeiliSearch::index('webman_2022')->query('桌面摆件')->limit(3)->select();
-```
-
-#### 6. 指定检索的字段查询
-
-```php
-Tinywan\Facade\MeiliSearch::index('webman_2022')->query('桌面摆件')->field(['title'])->select();
-```
 
 ## 返回字段
 
@@ -122,7 +104,7 @@ $documents = Db::table('mall_goods')
     ->limit(2)
     ->select()
     ->toArray();
-Tinywan\MeiliSearch1::index('article')->addDocuments($documents);
+Tinywan\Meilisearch::search()->index('meilisearch')->addDocuments($documents);
 ```
 
 2. 新添加的商品，单独添加
@@ -131,5 +113,5 @@ Tinywan\MeiliSearch1::index('article')->addDocuments($documents);
 $documents = [
     ['id' => 1, 'title' => '酒吧墙面装饰美式复古咖啡厅'],
 ];
-Tinywan\MeiliSearch1::index('article')->addDocuments($documents);
+Tinywan\Meilisearch::search()->index('meilisearch')->addDocuments($documents);
 ```

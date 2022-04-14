@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Tinywan;
 
 use Closure;
+use MeiliSearch\Client;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -18,6 +19,12 @@ use Tinywan\Exception\ContainerException;
 use Tinywan\Exception\ContainerNotFoundException;
 use Tinywan\Service\ContainerServiceProvider;
 use Tinywan\Service\SearchServiceProvider;
+
+/**
+ * @see \Tinywan\MeiliSearch
+ * @mixin MeiliSearch
+ * @method static Client search(array $config = [], $container = null)
+ */
 
 class MeiliSearch
 {
