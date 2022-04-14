@@ -117,3 +117,11 @@ $documents = [
 ];
 Tinywan\Meilisearch::search()->index('meilisearch')->addDocuments($documents);
 ```
+
+## Other
+
+```phpregexp
+vendor/bin/phpstan analyse -l 5 src
+
+vendor/bin/php-cs-fixer fix src
+```

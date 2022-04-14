@@ -1,11 +1,11 @@
 <?php
 /**
  * @desc MeiliSearch
+ *
  * @author Tinywan(ShaoBo Wan)
  * @date 2022/4/14 14:36
  */
 declare(strict_types=1);
-
 
 namespace Tinywan;
 
@@ -23,23 +23,23 @@ use Tinywan\Service\SearchServiceProvider;
 /**
  * @see \Tinywan\MeiliSearch
  * @mixin MeiliSearch
+ *
  * @method static Client search(array $config = [], $container = null)
  */
-
 class MeiliSearch
 {
     /**
-     * @var string[]
+     * @var array|string[]
      */
     protected array $service = [
-        SearchServiceProvider::class
+        SearchServiceProvider::class,
     ];
 
     /**
-     * @var string[]
+     * @var array|string[]
      */
     private array $coreService = [
-        ContainerServiceProvider::class
+        ContainerServiceProvider::class,
     ];
 
     /**
@@ -49,7 +49,7 @@ class MeiliSearch
 
     /**
      * Meili constructor.
-     * @param array $config
+     *
      * @param Closure|ContainerInterface|null $container
      */
     public function __construct(array $config, $container = null)
@@ -58,33 +58,10 @@ class MeiliSearch
     }
 
     /**
-     * 这里注册一些相关的服务：Event Log Http
-     * @param Closure|ContainerInterface|null $container
-     */
-    private function registerServices(array $config, $container = null): void
-    {
-        foreach (array_merge($this->coreService, $this->service) as $service) {
-            self::registerService($service, ContainerServiceProvider::class == $service ? $container : $config);
-        }
-    }
-
-    /**
-     * 调用接口注册服务
-     * @param mixed $data
-     */
-    public static function registerService(string $service, $data): void
-    {
-        $var = new $service();
-        if ($var instanceof ServiceProviderInterface) {
-            $var->register($data);
-        }
-    }
-
-    /**
      * @desc: __callStatic 描述
-     * @param string $service
-     * @param array $config
+     *
      * @return mixed
+     *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -94,14 +71,15 @@ class MeiliSearch
         if (!empty($config)) {
             self::config(...$config);
         }
+
         return self::get($service);
     }
 
     /**
      * @desc: 初始化配置
-     * @param array $config
+     *
      * @param Closure|ContainerInterface|null $container
-     * @return bool
+     *
      * @author Tinywan(ShaoBo Wan)
      */
     public static function config(array $config = [], $container = null): bool
@@ -110,36 +88,41 @@ class MeiliSearch
             return false;
         }
         new self($config, $container);
+
         return true;
     }
 
     /**
      * @desc: set 描述
+     *
      * @param string $name
      * @param $value
+     *
      * @throws ContainerException
-     * @author Tinywan(ShaoBo Wan)
      */
     public static function set(string $name, $value): void
     {
         try {
             $container = MeiliSearch::getContainer();
+            // 设置其他容器 $value
             if (method_exists($container, 'set')) {
                 $container->set(...func_get_args());
+
                 return;
             }
-        } catch (ContainerNotFoundException | \Throwable $e) {
+        } catch (ContainerNotFoundException|\Throwable $e) {
             throw new ContainerException($e->getMessage());
         }
+
         throw new ContainerException('Current container does NOT support `set` method');
     }
 
     /**
      * @desc: make 描述
-     * @param string $service
-     * @param array $parameters
+     *
      * @return mixed
-     * @throws \Exception
+     *
+     * @throws ContainerException
      */
     public static function make(string $service, array $parameters = [])
     {
@@ -148,32 +131,34 @@ class MeiliSearch
             if (method_exists($container, 'make')) {
                 return $container->make(...func_get_args());
             }
-        }catch (ContainerNotFoundException| \Throwable $e) {
+        } catch (ContainerNotFoundException|\Throwable $e) {
             throw new ContainerException($e->getMessage());
         }
         $parameters = array_values($parameters);
+
         return new $service(...$parameters);
     }
 
     /**
      * @desc 在容器中查找并返回实体标识符对应的对象
+     *
      * @param string $service 查找的实体标识符字符串
+     *
      * @return mixed
-     * @throws NotFoundExceptionInterface  容器中没有实体标识符对应对象时抛出的异常。
-     * @throws ContainerExceptionInterface 查找对象过程中发生了其他错误时抛出的异常。
+     *
+     * @throws NotFoundExceptionInterface  容器中没有实体标识符对应对象时抛出的异常
+     * @throws containerExceptionInterface 查找对象过程中发生了其他错误时抛出的异常
      */
     public static function get(string $service)
     {
-        // 注册的服务
-        $container = MeiliSearch::getContainer();
-        return $container->get($service);
+        return MeiliSearch::getContainer()->get($service);
     }
 
     /**
      * @desc: 如果容器内有标识符对应的内容时，返回 true，否则，返回 false。
-     * @param string $service
-     * @return bool
+     *
      * @throws ContainerNotFoundException
+     *
      * @author Tinywan(ShaoBo Wan)
      */
     public static function has(string $service): bool
@@ -191,7 +176,7 @@ class MeiliSearch
 
     /**
      * @desc: getContainer 描述
-     * @return ContainerInterface
+     *
      * @throws ContainerNotFoundException
      */
     public static function getContainer(): ContainerInterface
@@ -209,7 +194,6 @@ class MeiliSearch
 
     /**
      * @desc: hasContainer 描述
-     * @return bool
      */
     public static function hasContainer(): bool
     {
@@ -224,4 +208,28 @@ class MeiliSearch
         self::$container = null;
     }
 
+    /**
+     * 这里注册一些相关的服务：Event Log Http.
+     *
+     * @param Closure|ContainerInterface|null $container
+     */
+    private function registerServices(array $config, $container = null): void
+    {
+        foreach (array_merge($this->coreService, $this->service) as $service) {
+            self::registerService($service, ContainerServiceProvider::class == $service ? $container : $config);
+        }
+    }
+
+    /**
+     * 调用接口注册服务
+     *
+     * @param mixed $data
+     */
+    public static function registerService(string $service, $data): void
+    {
+        $var = new $service();
+        if ($var instanceof ServiceProviderInterface) {
+            $var->register($data);
+        }
+    }
 }

@@ -1,20 +1,20 @@
 <?php
 /**
  * @desc ContainerServiceProvider.php 描述信息
+ *
  * @author Tinywan(ShaoBo Wan)
  * @date 2022/4/14 15:49
  */
 declare(strict_types=1);
 
-
 namespace Tinywan\Service;
 
-use \DI\ContainerBuilder;
+use DI\ContainerBuilder;
 use Psr\Container\ContainerInterface;
-use Tinywan\MeiliSearch;
 use Tinywan\Contract\ServiceProviderInterface;
 use Tinywan\Exception\ContainerException;
 use Tinywan\Exception\ContainerNotFoundException;
+use Tinywan\MeiliSearch;
 
 class ContainerServiceProvider implements ServiceProviderInterface
 {
@@ -23,6 +23,7 @@ class ContainerServiceProvider implements ServiceProviderInterface
         // 已经祖册，直接返回
         if ($data instanceof ContainerInterface || $data instanceof \Closure) {
             MeiliSearch::setContainer($data);
+
             return;
         }
 
@@ -35,6 +36,7 @@ class ContainerServiceProvider implements ServiceProviderInterface
 
     /**
      * @desc: 默认注册 defaultRegister
+     *
      * @throws ContainerException
      */
     protected function defaultRegister(): void
