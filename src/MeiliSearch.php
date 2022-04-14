@@ -18,6 +18,7 @@ use Tinywan\Contract\ServiceProviderInterface;
 use Tinywan\Exception\ContainerException;
 use Tinywan\Exception\ContainerNotFoundException;
 use Tinywan\Service\ContainerServiceProvider;
+use Tinywan\Service\HttpServiceProvider;
 use Tinywan\Service\SearchServiceProvider;
 
 /**
@@ -40,6 +41,7 @@ class MeiliSearch
      */
     private array $coreService = [
         ContainerServiceProvider::class,
+        HttpServiceProvider::class
     ];
 
     /**
@@ -174,7 +176,7 @@ class MeiliSearch
     }
 
     /**
-     * @desc: getContainer 描述
+     * @desc: getContainer
      *
      * @throws ContainerNotFoundException
      */
