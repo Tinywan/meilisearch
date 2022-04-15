@@ -97,6 +97,7 @@ class MeiliSearch
     /**
      * @desc: 设置切换到另一个容器
      *
+     * @param string $name
      * @param $value
      *
      * @throws ContainerException
@@ -142,22 +143,28 @@ class MeiliSearch
 
     /**
      * @desc 在容器中查找并返回实体标识符对应的对象
-     *
+     * （1）参数 id 对应的对象在容器中不存在时， get 方法抛出的异常必须实现 Psr\Container\NotFoundExceptionInterface 接口。
      * @param string $service 查找的实体标识符字符串
      *
      * @return mixed
      *
      * @throws NotFoundExceptionInterface  容器中没有实体标识符对应对象时抛出的异常
-     * @throws containerExceptionInterface 查找对象过程中发生了其他错误时抛出的异常
+     * @throws ContainerExceptionInterface 查找对象过程中发生了其他错误时抛出的异常
      */
     public static function get(string $service)
     {
-        return MeiliSearch::getContainer()->get($service);
+        try {
+            return MeiliSearch::getContainer()->get($service);
+        } catch (NotFoundExceptionInterface|ContainerExceptionInterface $exception){
+            // 因为请求的对象存在，所以 NotFoundExceptionInterface 的异常表示这是容器配置错误或者请求对象的依赖不存在。
+            throw new ContainerNotFoundException('容器配置错误或者请求对象的依赖不存在');
+        }
     }
 
     /**
      * @desc: 如果容器内有标识符对应的内容时，返回 true，否则，返回 false。
-     *
+     * （1）如果 has 方法返回 false ， get 方法抛出的异常一定要实现 Psr\Container\NotFoundExceptionInterface 接口。
+     * （2）如果 has 方法返回 true，这并不意味 get 会成功且不会抛出异常。如果对象依赖的对象不存在时也会抛出 Psr\Container\NotFoundExceptionInterface 接口的异常。
      * @throws ContainerNotFoundException
      */
     public static function has(string $service): bool
@@ -212,6 +219,7 @@ class MeiliSearch
     /**
      * @desc 调用接口注册服务
      *
+     * @param string $service
      * @param $data
      */
     public static function registerService(string $service, $data): void

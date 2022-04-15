@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Tinywan\Exception;
 
-class ContainerNotFoundException extends ContainerException
+use Psr\Container\NotFoundExceptionInterface;
+
+class ContainerNotFoundException extends ContainerException implements NotFoundExceptionInterface
 {
 }

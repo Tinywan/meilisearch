@@ -11,15 +11,21 @@ namespace Tinywan\Service;
 
 
 use GuzzleHttp\Client;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Tinywan\Contract\ConfigInterface;
 use Tinywan\Contract\HttpClientInterface;
 use Tinywan\Contract\ServiceProviderInterface;
+use Tinywan\Exception\ContainerException;
 use Tinywan\MeiliSearch;
 
 class HttpServiceProvider implements ServiceProviderInterface
 {
     /**
      * @param null $data
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerException
      */
     public function register($data = null): void
     {
