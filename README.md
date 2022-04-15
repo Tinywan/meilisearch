@@ -118,10 +118,28 @@ $documents = [
 Tinywan\Meilisearch::search()->index('meilisearch')->addDocuments($documents);
 ```
 
-## Other
+### Test
 
 ```phpregexp
 vendor/bin/phpstan analyse -l 5 src
 
 vendor/bin/php-cs-fixer fix src
 ```
+
+## Other
+
+### Config
+
+① 配置初始化 `Tinywan\Meilisearch::config([])`
+② 调用构造函数 `new self($config, $container)`
+③ 构造函数注册服务 `$this->registerServices($config, $container);`
+④ 注册服务：核心服务和自定义服务
+⑤ 核心服务 `ContainerServiceProvider` 注册函数`register($data)` 调用
+⑥ 注册函数`register($data)` 调用PSR11实现的DI依赖注入扩展 `DI\ContainerBuilder`
+⑦ 通过依赖注入扩展 `DI\ContainerBuilder` 为容器服务`ContainerServiceProvider`指定容器 `MeiliSearch::setContainer($container);`
+⑧ 通过依赖注入扩展 `DI\ContainerBuilder` 为当前服务设置容器 `MeiliSearch::setContainer($container);`
+⑨ 获取当前设置的容器 `var_dump(MeiliSearch::getContainer()); 获取对象：class DI\Container#101 (8) {}`
+
+### 文件加载
+
+TP6 Container 调用反射执行类的实例化。并不是按照标准的PSR11的容器接口实现的

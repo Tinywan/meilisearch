@@ -15,9 +15,22 @@ use Tinywan\Contract\ServiceProviderInterface;
 use Tinywan\Exception\ContainerException;
 use Tinywan\Exception\ContainerNotFoundException;
 use Tinywan\MeiliSearch;
+use support\Container as WebmanContainer;
 
 class ContainerServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @var string[]
+     */
+    private array $detectApplication = [
+        'webman' => WebmanContainer::class,
+    ];
+
+    /**
+     * @desc: register 描述
+     * @param null $data
+     * @throws ContainerException
+     */
     public function register($data = null): void
     {
         // 已经祖册，直接返回
@@ -30,8 +43,35 @@ class ContainerServiceProvider implements ServiceProviderInterface
         if (MeiliSearch::hasContainer()) {
             return;
         }
+
+        foreach ($this->detectApplication as $framework => $application) {
+            $method = $framework.'Application';
+
+            if (class_exists($application) && method_exists($this, $method) && $this->{$method}()) {
+                return;
+            }
+        }
+
         // 默认注册
         $this->defaultRegister();
+    }
+
+    /**
+     * @desc: webmanApplication 描述
+     * @return bool
+     * @throws ContainerException
+     * @throws ContainerNotFoundException
+     */
+    protected function webmanApplication(): bool
+    {
+        MeiliSearch::setContainer(static fn () => WebmanContainer::instance());
+        MeiliSearch::set(\Tinywan\Contract\ContainerInterface::class, WebmanContainer::instance());
+
+        if (!MeiliSearch::has(ContainerInterface::class)) {
+            MeiliSearch::set(ContainerInterface::class, WebmanContainer::instance());
+        }
+
+        return true;
     }
 
     /**
