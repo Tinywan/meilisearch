@@ -78,10 +78,9 @@ class MeiliSearch
 
     /**
      * @desc: 初始化配置
-     *
+     * @param array $config
      * @param Closure|ContainerInterface|null $container
-     *
-     * @author Tinywan(ShaoBo Wan)
+     * @return bool
      */
     public static function config(array $config = [], $container = null): bool
     {
